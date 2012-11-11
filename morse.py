@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 #
 # A Python script which encodes an ASCII message with International Morse Code
 # and plays the message with a system beep.
@@ -16,7 +16,7 @@
 # Website:  https://github.com/pigmonkey/ham
 #
 ###############################################################################
-import getopt
+import argparse
 import os
 import subprocess
 import sys
@@ -56,43 +56,35 @@ GROUP_PAUSE = DIT * 7
 # End configuration.
 ###############################################################################
 
-def usage():
-    print '''Convert an ASCII file to International Morse Code and play it with system beeps.
+# Set available command-line arguments.
+parser = argparse.ArgumentParser(description='Convert an ASCII file to International Morse Code and play it with system beeps.')
+parser.add_argument('-b', '--beep', action='store', dest='beep',
+                    help="The location of the program that plays the beeps.\
+                          This script is intended to be used with Johnathan \
+                          Nightingale's beep:\
+                          http://www.johnath.com/beep/")
+parser.add_argument('-s', '--speed', action='store', dest='speed',
+                    help='Reduce the pauses between message characters by the \
+                          given amount.')
+parser.add_argument('-f', '--file', action='store', dest='file',
+                    help='The location of the ASCII file to convert.')
+parser.add_argument('-q', '--quiet', action='store_const', const=True,
+                    help='Do not print the dots and dashes.')
 
-    Options:
-        -b, --beep BEEP         # The location of the program that plays the beeps.
-                                # This script is intended to be used with Johnathan Nightingale's beep:
-                                # http://www.johnath.com/beep/
-        -q, --quiet             # Don't print dots and dashes.
-        -s, --speed SPEED       # Speed up the playback by reducing the pauses between message characters by the given amount.
-                                # A number less than 1 will result in slowing down the playback.
-        -f, --file FILE         # The location of the ASCII file to convert.
-        -h, --help              # Displays this help list.
-    '''
-
-# Get any options from the user.
-try:
-    opts, args = getopt.getopt(sys.argv[1:], "b:qs:f:h",
-        ["beep=", "quiet", "speed=" "file=", "help"])
-except getopt.GetoptError:
-    usage()
-    sys.exit(2)
-for opt, arg in opts:
-    if opt in ("-h", "--help"):
-        usage()
-        sys.exit()
-    elif opt in ("-b", "--beep"):
-        BEEP = arg
-    elif opt in ("-q", "--quiet"):
-        QUIET = True
-    elif opt in ("-s", "--speed"):
-        try:
-            SPEED = float(arg)
-        except ValueError:
-            print 'The speed adjustment number must be a number.'
-            sys.exit(1)
-    elif opt in ("-f", "--file"):
-        FILE = arg
+# Parse command-line arguments.
+args = parser.parse_args()
+if args.beep:
+    BEEP = args.beep
+if args.speed:
+    try:
+        SPEED = float(args.speed)
+    except ValueError:
+        print 'The speed adjustment number must be a number.'
+        sys.exit(1)
+if args.file:
+    FILE = args.file
+if args.quiet:
+    QUIET = args.quiet
 
 # If a beep program has been given, make sure that it exists.
 if BEEP and not os.path.exists(BEEP):
