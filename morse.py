@@ -105,12 +105,11 @@ if SPEED > 0:
     CHARACTER_PAUSE = CHARACTER_PAUSE / SPEED
     GROUP_PAUSE = GROUP_PAUSE / SPEED
 
-# Check to make sure that a file has been given.
+# If no file was specified, read from standard input.
 if FILE is None:
-    usage()
-    sys.exit(1)
+    message = sys.stdin
+# If a file was specified, open it.
 else:
-    # Make sure that the file can be opened.
     try:
         message = open(FILE, 'rb')
     except:
